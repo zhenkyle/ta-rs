@@ -21,7 +21,10 @@ include = [
 travis-ci = { repository = "greyblake/ta-rs", branch = "master" }
 
 [dependencies]
-error-chain = "0.11"
+failure = { version = "0.1.6", features = ["failure_derive"], default-features = false}
+heapless = "0.5.3"
+m = "0.1.1"
+#failure = { version = "0.1.6"}
 
 [dev-dependencies]
 assert_approx_eq = "1.0.0"

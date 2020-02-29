@@ -1,3 +1,4 @@
+#![no_std]
 //! ta is a Rust library for technical analysis. It provides number of technical indicators
 //! that can be used to build trading strategies for stock markets, futures, forex, cryptocurrencies, etc.
 //!
@@ -47,7 +48,7 @@
 //!   * [On Balance Volume (OBV)](indicators/struct.OnBalanceVolume.html)
 //!
 #[macro_use]
-extern crate error_chain;
+extern crate failure;
 
 #[cfg(test)]
 #[macro_use]

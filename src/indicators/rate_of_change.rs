@@ -1,5 +1,5 @@
 use std::collections::VecDeque;
-use std::fmt;
+use core::fmt;
 
 use crate::errors::*;
 use crate::traits::{Close, Next, Reset};

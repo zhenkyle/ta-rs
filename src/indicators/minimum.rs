@@ -1,5 +1,6 @@
-use std::f64::INFINITY;
-use std::fmt;
+use core::f64::INFINITY;
+use core::fmt;
+use heapless::{Vec, consts::U10};
 
 use crate::errors::*;
 use crate::{Low, Next, Reset};
@@ -25,7 +26,7 @@ use crate::{Low, Next, Reset};
 #[derive(Debug, Clone)]
 pub struct Minimum {
     n: usize,
-    vec: Vec<f64>,
+    vec: Vec<f64,U10>,
     min_index: usize,
     cur_index: usize,
 }
@@ -40,7 +41,7 @@ impl Minimum {
 
         let indicator = Self {
             n: n,
-            vec: vec![INFINITY; n],
+            vec: Vec::new(),
             min_index: 0,
             cur_index: 0,
         };
@@ -49,7 +50,7 @@ impl Minimum {
     }
 
     fn find_min_index(&self) -> usize {
-        let mut min = ::std::f64::INFINITY;
+        let mut min = ::core::f64::INFINITY;
         let mut index: usize = 0;
 
         for (i, &val) in self.vec.iter().enumerate() {
