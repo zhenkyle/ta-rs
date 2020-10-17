@@ -1,10 +1,11 @@
 use core::fmt;
 
 use heapless::{Vec, consts::U10};
-use m::Float;
 
 use crate::errors::*;
 use crate::{Close, Next, Reset};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 /// Standard deviation (SD).
 ///
@@ -39,6 +40,7 @@ use crate::{Close, Next, Reset};
 ///
 /// * [Standard Deviation, Wikipedia](https://en.wikipedia.org/wiki/Standard_deviation)
 ///
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone)]
 pub struct StandardDeviation {
     n: u32,
@@ -76,10 +78,14 @@ impl Next<f64> for StandardDeviation {
     type Output = f64;
 
     fn next(&mut self, input: f64) -> Self::Output {
-        self.index = (self.index + 1) % (self.n as usize);
-
         let old_val = self.vec[self.index];
         self.vec[self.index] = input;
+
+        self.index = if self.index + 1 < self.n as usize {
+            self.index + 1
+        } else {
+            0
+        };
 
         if self.count < self.n {
             self.count += 1;
@@ -99,10 +105,10 @@ impl Next<f64> for StandardDeviation {
     }
 }
 
-impl<'a, T: Close> Next<&'a T> for StandardDeviation {
+impl<T: Close> Next<&T> for StandardDeviation {
     type Output = f64;
 
-    fn next(&mut self, input: &'a T) -> Self::Output {
+    fn next(&mut self, input: &T) -> Self::Output {
         self.next(input.close())
     }
 }

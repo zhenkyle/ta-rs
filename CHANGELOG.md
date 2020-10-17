@@ -1,3 +1,21 @@
+#### v0.3.0 - 2020-10-06
+
+* Implement Percentage Price Oscillator (PPO)
+* More efficient BollingerBands
+* More efficient FastStochastic
+* More efficient SlowStochastic
+* More efficient StandardDeviation
+* More efficient Minimum
+* More efficient Maximum
+* More efficient SimpleMovingAverage
+* Serde support
+
+#### v0.2.0 - 2020-08-31
+
+* Breaking: MovingAverageConvergenceDivergence now returns MovingAverageConvergenceDivergenceOutput instead of tuple
+* Implement Keltner Channel (KC)
+* Update error-chain dependency: 0.11 -> 0.12
+
 #### v0.1.5 - 2019-12-16
 
 * StandardDeviation Implementation

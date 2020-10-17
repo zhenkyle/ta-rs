@@ -4,6 +4,8 @@ use heapless::{Vec, consts::U10};
 
 use crate::errors::*;
 use crate::{High, Next, Reset};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 /// Returns the highest value in a given time frame.
 ///
@@ -24,6 +26,7 @@ use crate::{High, Next, Reset};
 /// assert_eq!(max.next(4.0), 5.0);
 /// assert_eq!(max.next(8.0), 8.0);
 /// ```
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone)]
 pub struct Maximum {
     n: usize,
@@ -41,7 +44,7 @@ impl Maximum {
         }
 
         let indicator = Self {
-            n: n,
+            n,
             vec: Vec::new(),
             max_index: 0,
             cur_index: 0,
@@ -68,7 +71,6 @@ impl Next<f64> for Maximum {
     type Output = f64;
 
     fn next(&mut self, input: f64) -> Self::Output {
-        self.cur_index = (self.cur_index + 1) % (self.n as usize);
         self.vec[self.cur_index] = input;
 
         if input > self.vec[self.max_index] {
@@ -77,14 +79,20 @@ impl Next<f64> for Maximum {
             self.max_index = self.find_max_index();
         }
 
+        self.cur_index = if self.cur_index + 1 < self.n as usize {
+            self.cur_index + 1
+        } else {
+            0
+        };
+
         self.vec[self.max_index]
     }
 }
 
-impl<'a, T: High> Next<&'a T> for Maximum {
+impl<T: High> Next<&T> for Maximum {
     type Output = f64;
 
-    fn next(&mut self, input: &'a T) -> Self::Output {
+    fn next(&mut self, input: &T) -> Self::Output {
         self.next(input.high())
     }
 }

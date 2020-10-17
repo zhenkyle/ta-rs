@@ -29,13 +29,23 @@ mod average_true_range;
 pub use self::average_true_range::AverageTrueRange;
 
 mod moving_average_convergence_divergence;
-pub use self::moving_average_convergence_divergence::MovingAverageConvergenceDivergence;
+pub use self::moving_average_convergence_divergence::{
+    MovingAverageConvergenceDivergence, MovingAverageConvergenceDivergenceOutput,
+};
+
+//mod percentage_price_oscillator;
+//pub use self::percentage_price_oscillator::{
+//    PercentagePriceOscillator, PercentagePriceOscillatorOutput,
+//};
 
 //mod efficiency_ratio;
 //pub use self::efficiency_ratio::EfficiencyRatio;
 
 mod bollinger_bands;
 pub use self::bollinger_bands::{BollingerBands, BollingerBandsOutput};
+
+//mod keltner_channel;
+//pub use self::keltner_channel::{KeltnerChannel, KeltnerChannelOutput};
 
 //mod rate_of_change;
 //pub use self::rate_of_change::RateOfChange;

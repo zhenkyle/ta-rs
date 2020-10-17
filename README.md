@@ -18,8 +18,7 @@ Technical analysis library for Rust.
 Add to you `Cargo.toml`:
 ```
 [dependencies]
-
-ta = "0.1.5"
+ta = "0.3.0"
 ```
 
 Example:
@@ -74,6 +73,7 @@ So far there are the following indicators available.
   * Fast Stochastic
   * Slow Stochastic
   * Moving Average Convergence Divergence (MACD)
+  * Percentage Price Oscillator (PPO)
   * Money Flow Index (MFI)
 * Other
   * Minimum
@@ -82,8 +82,14 @@ So far there are the following indicators available.
   * Average True Range (AR)
   * Efficiency Ratio (ER)
   * Bollinger Bands (BB)
+  * Keltner Channel (KC)
   * Rate of Change (ROC)
-  * OnBalanceVolume (OBV)
+  * On Balance Volume (OBV)
+
+
+## Features
+
+* `serde` - allows to serialize and deserialize indicators
 
 ## Running benchmarks
 
@@ -102,3 +108,6 @@ cargo bench
 - [Bartoshko](https://github.com/Bartoshko) - BollingerBands
 - [shreyasdeotare](https://github.com/shreyasdeotare) Shreyas Deotare - MoneyFlowIndex, OnBalanceVolume
 - [edwardycl](https://github.com/edwardycl) - StandardDeviation Implementation & More Efficient BollingerBands
+- [rideron89](https://github.com/rideron89) Ron Rider - Keltner Channel
+- [tirz](https://github.com/tirz) - Percentage Price Oscillator
+- [Devin Gunay](https://github.com/dgunay) - serde support

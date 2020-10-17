@@ -4,6 +4,8 @@ use heapless::{Vec, consts::U10};
 
 use crate::errors::*;
 use crate::{Low, Next, Reset};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 /// Returns the lowest value in a given time frame.
 ///
@@ -23,6 +25,7 @@ use crate::{Low, Next, Reset};
 /// assert_eq!(min.next(12.0), 10.0);
 /// assert_eq!(min.next(13.0), 11.0);
 /// ```
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone)]
 pub struct Minimum {
     n: usize,
@@ -40,7 +43,7 @@ impl Minimum {
         }
 
         let indicator = Self {
-            n: n,
+            n,
             vec: Vec::new(),
             min_index: 0,
             cur_index: 0,
@@ -68,7 +71,6 @@ impl Next<f64> for Minimum {
     type Output = f64;
 
     fn next(&mut self, input: f64) -> Self::Output {
-        self.cur_index = (self.cur_index + 1) % (self.n as usize);
         self.vec[self.cur_index] = input;
 
         if input < self.vec[self.min_index] {
@@ -77,14 +79,20 @@ impl Next<f64> for Minimum {
             self.min_index = self.find_min_index();
         }
 
+        self.cur_index = if self.cur_index + 1 < self.n as usize {
+            self.cur_index + 1
+        } else {
+            0
+        };
+
         self.vec[self.min_index]
     }
 }
 
-impl<'a, T: Low> Next<&'a T> for Minimum {
+impl<T: Low> Next<&T> for Minimum {
     type Output = f64;
 
-    fn next(&mut self, input: &'a T) -> Self::Output {
+    fn next(&mut self, input: &T) -> Self::Output {
         self.next(input.low())
     }
 }

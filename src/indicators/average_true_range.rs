@@ -4,6 +4,9 @@ use crate::errors::*;
 use crate::indicators::{ExponentialMovingAverage, TrueRange};
 use crate::{Close, High, Low, Next, Reset};
 
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 /// Average true range (ATR).
 ///
 /// A technical analysis volatility indicator, originally developed by J. Welles Wilder.
@@ -53,6 +56,7 @@ use crate::{Close, High, Low, Next, Reset};
 ///         assert_approx_eq!(indicator.next(&di), atr);
 ///     }
 /// }
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone)]
 pub struct AverageTrueRange {
     true_range: TrueRange,
@@ -77,10 +81,10 @@ impl Next<f64> for AverageTrueRange {
     }
 }
 
-impl<'a, T: High + Low + Close> Next<&'a T> for AverageTrueRange {
+impl<T: High + Low + Close> Next<&T> for AverageTrueRange {
     type Output = f64;
 
-    fn next(&mut self, input: &'a T) -> Self::Output {
+    fn next(&mut self, input: &T) -> Self::Output {
         self.ema.next(self.true_range.next(input))
     }
 }

@@ -1,6 +1,7 @@
 language: rust
+cache: cargo # cache dependencies to reduce compilation times
 rust:
-  - 1.33.0
+  - stable
 install:
   - rustup component add rustfmt
   - rustup component add clippy
@@ -8,4 +9,5 @@ script:
   - cargo fmt -- --check
   # - cargo clippy -- -D warnings
   - cargo test
+  - cargo test --features serde
   - cargo package

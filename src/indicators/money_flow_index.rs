@@ -3,6 +3,8 @@ use core::fmt;
 
 use crate::errors::*;
 use crate::{Close, High, Low, Next, Reset, Volume};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 /// Money Flow Index (MFI).
 ///
@@ -51,6 +53,7 @@ use crate::{Close, High, Low, Next, Reset, Volume};
 /// * [Money Flow Index, Wikipedia](https://en.wikipedia.org/wiki/Money_flow_index)
 /// * [Money Flow Index, stockcharts](https://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:money_flow_index_mfi)
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone)]
 pub struct MoneyFlowIndex {
     n: u32,
@@ -67,7 +70,7 @@ impl MoneyFlowIndex {
             0 => Err(Error::from_kind(ErrorKind::InvalidParameter)),
             _ => {
                 let indicator = Self {
-                    n: n,
+                    n,
                     money_flows: VecDeque::with_capacity(n as usize + 1),
                     prev_typical_price: 0.0,
                     total_positive_money_flow: 0.0,
@@ -80,10 +83,10 @@ impl MoneyFlowIndex {
     }
 }
 
-impl<'a, T: High + Low + Close + Volume> Next<&'a T> for MoneyFlowIndex {
+impl<T: High + Low + Close + Volume> Next<&T> for MoneyFlowIndex {
     type Output = f64;
 
-    fn next(&mut self, input: &'a T) -> f64 {
+    fn next(&mut self, input: &T) -> f64 {
         let typical_price = (input.high() + input.low() + input.close()) / 3.0;
 
         if self.is_new {
@@ -228,5 +231,4 @@ mod tests {
         let mfi = MoneyFlowIndex::new(10).unwrap();
         assert_eq!(format!("{}", mfi), "MFI(10)");
     }
-
 }

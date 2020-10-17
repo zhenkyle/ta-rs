@@ -1,6 +1,8 @@
 use core::fmt;
 
 use crate::{Close, Next, Reset, Volume};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
 
 /// On Balance Volume (OBV).
 ///
@@ -56,6 +58,7 @@ use crate::{Close, Next, Reset, Volume};
 /// * [On Balance Volume, Wikipedia](https://en.wikipedia.org/wiki/On-balance_volume)
 /// * [On Balance Volume, stockcharts](https://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:on_balance_volume_obv)
 
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone)]
 pub struct OnBalanceVolume {
     obv: f64,
@@ -71,10 +74,10 @@ impl OnBalanceVolume {
     }
 }
 
-impl<'a, T: Close + Volume> Next<&'a T> for OnBalanceVolume {
+impl<T: Close + Volume> Next<&T> for OnBalanceVolume {
     type Output = f64;
 
-    fn next(&mut self, input: &'a T) -> f64 {
+    fn next(&mut self, input: &T) -> f64 {
         if input.close() > self.prev_close {
             self.obv = self.obv + input.volume();
         } else if input.close() < self.prev_close {
@@ -159,5 +162,4 @@ mod tests {
         let obv = OnBalanceVolume::new();
         assert_eq!(format!("{}", obv), "OBV");
     }
-
 }

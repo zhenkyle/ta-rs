@@ -3,6 +3,9 @@ use core::fmt;
 use crate::errors::*;
 use crate::{Close, Next, Reset};
 use heapless::{Vec, consts::U10};
+#[cfg(feature = "serde")]
+use serde::{Deserialize, Serialize};
+
 /// Simple moving average (SMA).
 ///
 /// # Formula
@@ -12,12 +15,12 @@ use heapless::{Vec, consts::U10};
 /// Where:
 ///
 /// * _SMA<sub>t</sub>_ - value of simple moving average at a point of time _t_
-/// * _n_ - number of periods (length)
+/// * _length_ - number of periods (length)
 /// * _p<sub>t</sub>_ - input value at a point of time _t_
 ///
 /// # Parameters
 ///
-/// * _n_ - number of periods (integer greater than 0)
+/// * _length_ - number of periods (integer greater than 0)
 ///
 /// # Example
 ///
@@ -36,9 +39,10 @@ use heapless::{Vec, consts::U10};
 ///
 /// * [Simple Moving Average, Wikipedia](https://en.wikipedia.org/wiki/Moving_average#Simple_moving_average)
 ///
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone)]
 pub struct SimpleMovingAverage {
-    n: u32,
+    length: u32,
     index: usize,
     count: u32,
     sum: f64,
@@ -46,12 +50,12 @@ pub struct SimpleMovingAverage {
 }
 
 impl SimpleMovingAverage {
-    pub fn new(n: u32) -> Result<Self> {
-        match n {
+    pub fn new(length: u32) -> Result<Self> {
+        match length {
             0 => Err(Error::from_kind(ErrorKind::InvalidParameter)),
             _ => {
                 let indicator = Self {
-                    n: n,
+                    length,
                     index: 0,
                     count: 0,
                     sum: 0.0,
@@ -61,18 +65,26 @@ impl SimpleMovingAverage {
             }
         }
     }
+
+    pub fn length(&self) -> u32 {
+        self.length
+    }
 }
 
 impl Next<f64> for SimpleMovingAverage {
     type Output = f64;
 
     fn next(&mut self, input: f64) -> Self::Output {
-        self.index = (self.index + 1) % (self.n as usize);
-
         let old_val = self.vec[self.index];
         self.vec[self.index] = input;
 
-        if self.count < self.n {
+        self.index = if self.index + 1 < self.length as usize {
+            self.index + 1
+        } else {
+            0
+        };
+
+        if self.count < self.length {
             self.count += 1;
         }
 
@@ -81,10 +93,10 @@ impl Next<f64> for SimpleMovingAverage {
     }
 }
 
-impl<'a, T: Close> Next<&'a T> for SimpleMovingAverage {
+impl<T: Close> Next<&T> for SimpleMovingAverage {
     type Output = f64;
 
-    fn next(&mut self, input: &'a T) -> Self::Output {
+    fn next(&mut self, input: &T) -> Self::Output {
         self.next(input.close())
     }
 }
@@ -94,7 +106,7 @@ impl Reset for SimpleMovingAverage {
         self.index = 0;
         self.count = 0;
         self.sum = 0.0;
-        for i in 0..(self.n as usize) {
+        for i in 0..(self.length as usize) {
             self.vec[i] = 0.0;
         }
     }
@@ -108,7 +120,7 @@ impl Default for SimpleMovingAverage {
 
 impl fmt::Display for SimpleMovingAverage {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "SMA({})", self.n)
+        write!(f, "SMA({})", self.length)
     }
 }
 
