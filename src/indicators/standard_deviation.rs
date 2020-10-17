@@ -1,7 +1,7 @@
 use core::fmt;
 
 use heapless::{Vec, consts::U10};
-
+use m::Float;
 use crate::errors::*;
 use crate::{Close, Next, Reset};
 #[cfg(feature = "serde")]

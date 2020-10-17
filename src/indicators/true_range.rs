@@ -1,5 +1,6 @@
 use core::fmt;
 
+use m::Float;
 use crate::helpers::max3;
 use crate::{Close, High, Low, Next, Reset};
 #[cfg(feature = "serde")]
