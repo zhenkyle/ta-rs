@@ -1,8 +1,8 @@
 use std::collections::VecDeque;
 use core::fmt;
 
-use crate::errors::*;
-use crate::traits::{Close, Next, Reset};
+use crate::errors::{Error, ErrorKind, Result};
+use crate::traits::{Close, Next, Period, Reset};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
@@ -20,7 +20,7 @@ use serde::{Deserialize, Serialize};
 ///
 /// # Parameters
 ///
-/// * _length_ - number of periods (_n_), integer greater than 0
+/// * _period_ - number of periods integer greater than 0
 ///
 /// # Example
 ///
@@ -42,22 +42,29 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone)]
 pub struct RateOfChange {
-    length: u32,
-    prices: VecDeque<f64>,
+    period: usize,
+    index: usize,
+    count: usize,
+    deque: Box<[f64]>,
 }
 
 impl RateOfChange {
-    pub fn new(length: u32) -> Result<Self> {
-        match length {
+    pub fn new(period: usize) -> Result<Self> {
+        match period {
             0 => Err(Error::from_kind(ErrorKind::InvalidParameter)),
-            _ => {
-                let indicator = Self {
-                    length: length,
-                    prices: VecDeque::with_capacity(length as usize + 1),
-                };
-                Ok(indicator)
-            }
+            _ => Ok(Self {
+                period,
+                index: 0,
+                count: 0,
+                deque: vec![0.0; period].into_boxed_slice(),
+            }),
         }
+    }
+}
+
+impl Period for RateOfChange {
+    fn period(&self) -> usize {
+        self.period
     }
 }
 
@@ -65,21 +72,25 @@ impl Next<f64> for RateOfChange {
     type Output = f64;
 
     fn next(&mut self, input: f64) -> f64 {
-        self.prices.push_back(input);
-
-        if self.prices.len() == 1 {
-            return 0.0;
-        }
-
-        let initial_price = if self.prices.len() > (self.length as usize) {
-            // unwrap is safe, because the check above.
-            // At this moment there must be at least 2 items in self.prices
-            self.prices.pop_front().unwrap()
+        let previous = if self.count > self.period {
+            self.deque[self.index]
         } else {
-            self.prices[0]
+            self.count += 1;
+            if self.count == 1 {
+                input
+            } else {
+                self.deque[0]
+            }
+        };
+        self.deque[self.index] = input;
+
+        self.index = if self.index + 1 < self.period {
+            self.index + 1
+        } else {
+            0
         };
 
-        (input - initial_price) / initial_price * 100.0
+        (input - previous) / previous * 100.0
     }
 }
 
@@ -99,13 +110,17 @@ impl Default for RateOfChange {
 
 impl fmt::Display for RateOfChange {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "ROC({})", self.length)
+        write!(f, "ROC({})", self.period)
     }
 }
 
 impl Reset for RateOfChange {
     fn reset(&mut self) {
-        self.prices.clear();
+        self.index = 0;
+        self.count = 0;
+        for i in 0..self.period {
+            self.deque[i] = 0.0;
+        }
     }
 }
 

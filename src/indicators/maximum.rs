@@ -2,8 +2,8 @@ use core::f64::INFINITY;
 use core::fmt;
 use heapless::{Vec, consts::U10};
 
-use crate::errors::*;
-use crate::{High, Next, Reset};
+use crate::errors::{Error, ErrorKind, Result};
+use crate::{High, Next, Period, Reset};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 ///
 /// # Parameters
 ///
-/// * _n_ - size of the time frame (integer greater than 0). Default value is 14.
+/// * _period_ - size of the time frame (integer greater than 0). Default value is 14.
 ///
 /// # Example
 ///
@@ -29,34 +29,30 @@ use serde::{Deserialize, Serialize};
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 #[derive(Debug, Clone)]
 pub struct Maximum {
-    n: usize,
-    vec: Vec<f64, U10>,
+    period: usize,
     max_index: usize,
     cur_index: usize,
+    deque: Vec<f64,U10>,
 }
 
 impl Maximum {
-    pub fn new(n: u32) -> Result<Self> {
-        let n = n as usize;
-
-        if n == 0 {
-            return Err(Error::from_kind(ErrorKind::InvalidParameter));
+    pub fn new(period: usize) -> Result<Self> {
+        match period {
+            0 => Err(Error::from_kind(ErrorKind::InvalidParameter)),
+            _ => Ok(Self {
+                period,
+                max_index: 0,
+                cur_index: 0,
+                deque: Vec::new(),
+            }),
         }
-
-        let indicator = Self {
-            n,
-            vec: Vec::new(),
-            max_index: 0,
-            cur_index: 0,
-        };
-        Ok(indicator)
     }
 
     fn find_max_index(&self) -> usize {
         let mut max = -INFINITY;
         let mut index: usize = 0;
 
-        for (i, &val) in self.vec.iter().enumerate() {
+        for (i, &val) in self.deque.iter().enumerate() {
             if val > max {
                 max = val;
                 index = i;
@@ -67,25 +63,31 @@ impl Maximum {
     }
 }
 
+impl Period for Maximum {
+    fn period(&self) -> usize {
+        self.period
+    }
+}
+
 impl Next<f64> for Maximum {
     type Output = f64;
 
     fn next(&mut self, input: f64) -> Self::Output {
-        self.vec[self.cur_index] = input;
+        self.deque[self.cur_index] = input;
 
-        if input > self.vec[self.max_index] {
+        if input > self.deque[self.max_index] {
             self.max_index = self.cur_index;
         } else if self.max_index == self.cur_index {
             self.max_index = self.find_max_index();
         }
 
-        self.cur_index = if self.cur_index + 1 < self.n as usize {
+        self.cur_index = if self.cur_index + 1 < self.period {
             self.cur_index + 1
         } else {
             0
         };
 
-        self.vec[self.max_index]
+        self.deque[self.max_index]
     }
 }
 
@@ -99,8 +101,8 @@ impl<T: High> Next<&T> for Maximum {
 
 impl Reset for Maximum {
     fn reset(&mut self) {
-        for i in 0..self.n {
-            self.vec[i] = -INFINITY;
+        for i in 0..self.period {
+            self.deque[i] = -INFINITY;
         }
     }
 }
@@ -113,7 +115,7 @@ impl Default for Maximum {
 
 impl fmt::Display for Maximum {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "MAX({})", self.n)
+        write!(f, "MAX({})", self.period)
     }
 }
 

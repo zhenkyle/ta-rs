@@ -1,3 +1,12 @@
+#### v0.4.0 - 2020-11-03
+
+* [breaking] Unify parameters for the indicators
+* Implement Chandelier Exit (CE)
+
+#### v0.3.1 - 2020-10-20
+
+* Fix NaN bug in StandardDeviation
+
 #### v0.3.0 - 2020-10-06
 
 * Implement Percentage Price Oscillator (PPO)

@@ -16,7 +16,7 @@
 //! use ta::indicators::ExponentialMovingAverage;
 //! use ta::Next;
 //!
-//! // it can return an error, when an invalid length is passed (e.g. 0)
+//! // it can return an error, when an invalid period is passed (e.g. 0)
 //! let mut ema = ExponentialMovingAverage::new(3).unwrap();
 //!
 //! assert_eq!(ema.next(2.0), 2.0);
@@ -40,6 +40,7 @@
 //! * Other
 //!   * [Standard Deviation (SD)](indicators/struct.StandardDeviation.html)
 //!   * [Bollinger Bands (BB)](indicators/struct.BollingerBands.html)
+//!   * [Chandelier Exit (CE)](indicators/struct.ChandelierExit.html)
 //!   * [Keltner Channel (KC)](indicators/struct.KeltnerChannel.html)
 //!   * [Maximum](indicators/struct.Maximum.html)
 //!   * [Minimum](indicators/struct.Minimum.html)
