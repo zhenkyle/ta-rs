@@ -1,6 +1,6 @@
 use core::fmt;
 
-use heapless::{Vec, consts::U10};
+use heapless::{Vec};
 use m::Float;
 use crate::errors::{Error, ErrorKind, Result};
 use crate::{Close, Next, Period, Reset};
@@ -48,7 +48,7 @@ pub struct StandardDeviation {
     count: usize,
     m: f64,
     m2: f64,
-    deque: Vec<f64, U10>,
+    deque: Vec<f64, 10>,
 }
 
 impl StandardDeviation {

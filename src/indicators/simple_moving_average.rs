@@ -2,7 +2,7 @@ use core::fmt;
 
 use crate::errors::{Error, ErrorKind, Result};
 use crate::{Close, Next, Period, Reset};
-use heapless::{Vec, consts::U10};
+use heapless::{Vec};
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
@@ -46,7 +46,7 @@ pub struct SimpleMovingAverage {
     index: usize,
     count: usize,
     sum: f64,
-    deque: Vec<f64,U10>,
+    deque: Vec<f64,10>,
 }
 
 impl SimpleMovingAverage {

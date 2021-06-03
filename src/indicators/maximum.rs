@@ -1,6 +1,6 @@
 use core::f64::INFINITY;
 use core::fmt;
-use heapless::{Vec, consts::U10};
+use heapless::{Vec};
 
 use crate::errors::{Error, ErrorKind, Result};
 use crate::{High, Next, Period, Reset};
@@ -32,7 +32,7 @@ pub struct Maximum {
     period: usize,
     max_index: usize,
     cur_index: usize,
-    deque: Vec<f64,U10>,
+    deque: Vec<f64,10>,
 }
 
 impl Maximum {
