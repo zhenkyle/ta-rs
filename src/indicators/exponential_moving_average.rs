@@ -56,8 +56,8 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone)]
 pub struct ExponentialMovingAverage {
     period: usize,
-    k: f64,
-    current: f64,
+    k: f32,
+    current: f32,
     is_new: bool,
 }
 
@@ -67,7 +67,7 @@ impl ExponentialMovingAverage {
             0 => Err(Error::from_kind(ErrorKind::InvalidParameter)),
             _ => Ok(Self {
                 period,
-                k: 2.0 / (period + 1) as f64,
+                k: 2.0 / (period + 1) as f32,
                 current: 0.0,
                 is_new: true,
             }),
@@ -81,10 +81,10 @@ impl Period for ExponentialMovingAverage {
     }
 }
 
-impl Next<f64> for ExponentialMovingAverage {
-    type Output = f64;
+impl Next<f32> for ExponentialMovingAverage {
+    type Output = f32;
 
-    fn next(&mut self, input: f64) -> Self::Output {
+    fn next(&mut self, input: f32) -> Self::Output {
         if self.is_new {
             self.is_new = false;
             self.current = input;
@@ -96,7 +96,7 @@ impl Next<f64> for ExponentialMovingAverage {
 }
 
 impl<T: Close> Next<&T> for ExponentialMovingAverage {
-    type Output = f64;
+    type Output = f32;
 
     fn next(&mut self, input: &T) -> Self::Output {
         self.next(input.close())

@@ -23,8 +23,10 @@ travis-ci = { repository = "greyblake/ta-rs", branch = "master" }
 [dependencies]
 failure = { version = "0.1.8", features = ["failure_derive"], default-features = false}
 heapless = "^0.7.1"
-m = "0.1.1"
 serde = { version = "1.0", features = ["derive"], optional = true}
+
+[dependencies.micromath]
+version = "^1.1.0"
 
 [dev-dependencies]
 assert_approx_eq = "1.0.0"

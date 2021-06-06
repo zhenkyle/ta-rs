@@ -1,8 +1,3 @@
-/// Returns the largest of 3 given numbers.
-pub fn max3(a: f64, b: f64, c: f64) -> f64 {
-    a.max(b).max(c)
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

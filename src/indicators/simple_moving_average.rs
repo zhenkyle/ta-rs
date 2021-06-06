@@ -45,8 +45,8 @@ pub struct SimpleMovingAverage {
     period: usize,
     index: usize,
     count: usize,
-    sum: f64,
-    deque: Vec<f64,10>,
+    sum: f32,
+    deque: Vec<f32,10>,
 }
 
 impl SimpleMovingAverage {
@@ -70,10 +70,10 @@ impl Period for SimpleMovingAverage {
     }
 }
 
-impl Next<f64> for SimpleMovingAverage {
-    type Output = f64;
+impl Next<f32> for SimpleMovingAverage {
+    type Output = f32;
 
-    fn next(&mut self, input: f64) -> Self::Output {
+    fn next(&mut self, input: f32) -> Self::Output {
         let old_val = self.deque[self.index];
         self.deque[self.index] = input;
 
@@ -88,12 +88,12 @@ impl Next<f64> for SimpleMovingAverage {
         }
 
         self.sum = self.sum - old_val + input;
-        self.sum / (self.count as f64)
+        self.sum / (self.count as f32)
     }
 }
 
 impl<T: Close> Next<&T> for SimpleMovingAverage {
-    type Output = f64;
+    type Output = f32;
 
     fn next(&mut self, input: &T) -> Self::Output {
         self.next(input.close())
@@ -150,7 +150,7 @@ mod tests {
 
     #[test]
     fn test_next_with_bars() {
-        fn bar(close: f64) -> Bar {
+        fn bar(close: f32) -> Bar {
             Bar::new().close(close)
         }
 
